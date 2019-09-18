@@ -6,6 +6,7 @@ import (
 	"github.com/caarlos0/env"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -29,9 +30,11 @@ type prCountResult struct {
 
 func leaderboard(writer http.ResponseWriter, request *http.Request) {
 	userData := make(map[string]UserData)
-	authors := []string{"teo-shaowei", "fonglh", "cflee", "naomilwx", "jchiam", "jeremyyap", "wongherlung", "xeluna", "weelillad"}
+	authors := strings.Split(cfg.Authors, ":")
+	fmt.Printf("Authors: %v\n", authors)
 	for _, author := range authors {
 		userData[author] = UserData{PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
+		fmt.Printf("Author: %s, PR count: %d\n", author, userData[author].PrCount)
 	}
 	jsonString, _ := json.Marshal(userData)
 	fmt.Fprintf(writer, "%s", jsonString)
@@ -54,7 +57,7 @@ func getAvatar(author string) string {
 	}
 }
 
-func getPrCount(author string) int {
+func getPrCount(author string) (prCount int) {
 	year := calcYear()
 	url := fmt.Sprintf("https://api.github.com/search/issues?q=created:%d-09-30T00:00:00-12:00..%d-10-31T23:59:59-12:00+type:pr+is:public+author:%s", year, year, author)
 	client := &http.Client{}
@@ -67,8 +70,8 @@ func getPrCount(author string) int {
 		defer response.Body.Close()
 	}
 	if err != nil {
-		fmt.Println("The HTTP request failed with error %s\n", err)
-		return 0
+		fmt.Println("Failed to fetch PR count. %s\n", err)
+		return -1
 	} else {
 		ghData, _ := ioutil.ReadAll(response.Body)
 		result := prCountResult{}
@@ -88,12 +91,13 @@ func calcYear() int {
 	}
 }
 
+// global config
+var cfg = config{}
+
 func main() {
-	cfg := config{}
 	if err := env.Parse(&cfg); err != nil {
 		fmt.Printf("%+v\n", err)
 	}
-	fmt.Printf("%+v\n", cfg)
 
 	http.HandleFunc("/leaderboard", leaderboard)
 	http.ListenAndServe(":4000", nil)
