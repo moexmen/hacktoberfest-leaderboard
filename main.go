@@ -3,10 +3,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/caarlos0/env"
 	"io/ioutil"
 	"net/http"
 	"time"
 )
+
+type config struct {
+	GithubToken string `env:"GHTOKEN"`
+	Authors     string `env:"AUTHORS"`
+}
 
 type UserData struct {
 	PrCount   int
@@ -83,6 +89,12 @@ func calcYear() int {
 }
 
 func main() {
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		fmt.Printf("%+v\n", err)
+	}
+	fmt.Printf("%+v\n", cfg)
+
 	http.HandleFunc("/leaderboard", leaderboard)
 	http.ListenAndServe(":4000", nil)
 }
