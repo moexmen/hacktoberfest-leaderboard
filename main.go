@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 )
@@ -51,6 +52,7 @@ func leaderboard_data() []UserData {
 		userData[i] = authorData
 		fmt.Printf("Author: %s, PR count: %d\n", authorData.Author, authorData.PrCount)
 	}
+	sort.Slice(userData, func(i, j int) bool { return userData[i].PrCount > userData[j].PrCount })
 	return userData
 }
 
