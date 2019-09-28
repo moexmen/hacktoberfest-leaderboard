@@ -17,6 +17,7 @@ type config struct {
 }
 
 type UserData struct {
+	Author    string
 	PrCount   int
 	AvatarURL string
 }
@@ -40,14 +41,15 @@ func leaderboard_json(writer http.ResponseWriter, request *http.Request) {
 	fmt.Fprintf(writer, "%s", jsonString)
 }
 
-// return map of usernames to UserData struct containing PR count and avatar URL.
-func leaderboard_data() map[string]UserData {
-	userData := make(map[string]UserData)
+// return slice of UserData structs
+func leaderboard_data() []UserData {
 	authors := strings.Split(cfg.Authors, ":")
+	userData := make([]UserData, len(authors))
 	fmt.Printf("Authors: %v\n", authors)
-	for _, author := range authors {
-		userData[author] = UserData{PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
-		fmt.Printf("Author: %s, PR count: %d\n", author, userData[author].PrCount)
+	for i, author := range authors {
+		authorData := UserData{Author: author, PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
+		userData[i] = authorData
+		fmt.Printf("Author: %s, PR count: %d\n", authorData.Author, authorData.PrCount)
 	}
 	return userData
 }

@@ -19,11 +19,11 @@
           </tr>
         </thead>
         <tbody>
-          {{ range $name, $userData := . }}
+          {{ range . }}
             <tr>
-              <td><img src="{{ $userData.AvatarURL }}"></td>
-              <td>{{ $name }}</td>
-              <td>{{ $userData.PrCount }}</td>
+              <td><img src="{{ .AvatarURL }}"></td>
+              <td>{{ .Author }}</td>
+              <td>{{ .PrCount }}</td>
             </tr>
           {{ end }}
         </tbody>
