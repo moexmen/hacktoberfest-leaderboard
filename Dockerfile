@@ -6,5 +6,6 @@ RUN go build
 
 FROM alpine
 COPY --from=builder /app /app
+WORKDIR /app
 ENTRYPOINT ["/app/hacktoberfest-leaderboard"]
 EXPOSE 4000
