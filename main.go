@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/caarlos0/env"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -29,6 +30,18 @@ type prCountResult struct {
 }
 
 func leaderboard(writer http.ResponseWriter, request *http.Request) {
+	t := template.Must(template.ParseFiles("leaderboard.html"))
+	userData := leaderboard_data()
+	t.Execute(writer, userData)
+}
+
+func leaderboard_json(writer http.ResponseWriter, request *http.Request) {
+	jsonString, _ := json.Marshal(leaderboard_data())
+	fmt.Fprintf(writer, "%s", jsonString)
+}
+
+// return map of usernames to UserData struct containing PR count and avatar URL.
+func leaderboard_data() map[string]UserData {
 	userData := make(map[string]UserData)
 	authors := strings.Split(cfg.Authors, ":")
 	fmt.Printf("Authors: %v\n", authors)
@@ -36,8 +49,7 @@ func leaderboard(writer http.ResponseWriter, request *http.Request) {
 		userData[author] = UserData{PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
 		fmt.Printf("Author: %s, PR count: %d\n", author, userData[author].PrCount)
 	}
-	jsonString, _ := json.Marshal(userData)
-	fmt.Fprintf(writer, "%s", jsonString)
+	return userData
 }
 
 func getAvatar(author string) string {
@@ -99,6 +111,10 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
+	fs := http.FileServer(http.Dir("assets"))
+
+	http.Handle("/", fs)
+	http.HandleFunc("/leaderboard.json", leaderboard_json)
 	http.HandleFunc("/leaderboard", leaderboard)
 	http.ListenAndServe(":4000", nil)
 }
