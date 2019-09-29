@@ -27,6 +27,7 @@ type AuthorData struct {
 type LeaderboardData struct {
 	AuthorData      []AuthorData
 	RefreshInterval int
+	Year            int
 }
 
 type avatarResult struct {
@@ -40,7 +41,7 @@ type prCountResult struct {
 func leaderboard(writer http.ResponseWriter, request *http.Request) {
 	t := template.Must(template.ParseFiles("leaderboard.html"))
 	authorData := getAuthorData()
-	leaderboardData := LeaderboardData{AuthorData: authorData, RefreshInterval: cfg.RefreshInterval}
+	leaderboardData := LeaderboardData{AuthorData: authorData, RefreshInterval: cfg.RefreshInterval, Year: calcYear()}
 	t.Execute(writer, leaderboardData)
 }
 
