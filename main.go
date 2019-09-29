@@ -13,14 +13,20 @@ import (
 )
 
 type config struct {
-	GithubToken string `env:"GHTOKEN"`
-	Authors     string `env:"AUTHORS"`
+	GithubToken     string `env:"GHTOKEN"`
+	Authors         string `env:"AUTHORS"`
+	RefreshInterval int    `env:"REFRESH_INTERVAL" envDefault:"1800"`
 }
 
-type UserData struct {
+type AuthorData struct {
 	Author    string
 	PrCount   int
 	AvatarURL string
+}
+
+type LeaderboardData struct {
+	AuthorData      []AuthorData
+	RefreshInterval int
 }
 
 type avatarResult struct {
@@ -33,27 +39,28 @@ type prCountResult struct {
 
 func leaderboard(writer http.ResponseWriter, request *http.Request) {
 	t := template.Must(template.ParseFiles("leaderboard.html"))
-	userData := leaderboard_data()
-	t.Execute(writer, userData)
+	authorData := getAuthorData()
+	leaderboardData := LeaderboardData{AuthorData: authorData, RefreshInterval: cfg.RefreshInterval}
+	t.Execute(writer, leaderboardData)
 }
 
-func leaderboard_json(writer http.ResponseWriter, request *http.Request) {
-	jsonString, _ := json.Marshal(leaderboard_data())
+func leaderboardJSON(writer http.ResponseWriter, request *http.Request) {
+	jsonString, _ := json.Marshal(getAuthorData())
 	fmt.Fprintf(writer, "%s", jsonString)
 }
 
-// return slice of UserData structs
-func leaderboard_data() []UserData {
+// return slice of AuthorData structs ordered by PR count descending
+func getAuthorData() []AuthorData {
 	authors := strings.Split(cfg.Authors, ":")
-	userData := make([]UserData, len(authors))
+	authorData := make([]AuthorData, len(authors))
 	fmt.Printf("Authors: %v\n", authors)
 	for i, author := range authors {
-		authorData := UserData{Author: author, PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
-		userData[i] = authorData
-		fmt.Printf("Author: %s, PR count: %d\n", authorData.Author, authorData.PrCount)
+		currentAuthor := AuthorData{Author: author, PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
+		authorData[i] = currentAuthor
+		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
-	sort.Slice(userData, func(i, j int) bool { return userData[i].PrCount > userData[j].PrCount })
-	return userData
+	sort.Slice(authorData, func(i, j int) bool { return authorData[i].PrCount > authorData[j].PrCount })
+	return authorData
 }
 
 func getAvatar(author string) string {
@@ -118,7 +125,7 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 
 	http.Handle("/", fs)
-	http.HandleFunc("/leaderboard.json", leaderboard_json)
+	http.HandleFunc("/leaderboard.json", leaderboardJSON)
 	http.HandleFunc("/leaderboard", leaderboard)
 	http.ListenAndServe(":4000", nil)
 }

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
+    <meta http-equiv="refresh" content="{{ .RefreshInterval }}">
     <link rel="stylesheet" type="text/css" href="style.css">
     <title>ESTL Hacktoberfest</title>
   </head>
@@ -19,7 +20,7 @@
           </tr>
         </thead>
         <tbody>
-          {{ range . }}
+          {{ range .AuthorData }}
             <tr>
               <td><img src="{{ .AvatarURL }}"></td>
               <td>{{ .Author }}</td>
