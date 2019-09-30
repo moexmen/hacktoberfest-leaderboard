@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="refresh" content="{{ .RefreshInterval }}">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>ESTL Hacktoberfest {{ .Year }}</title>
+  </head>
+  <body>
+    <div class="aligner">
+      <h1>ESTL Hacktoberfest {{ .Year }}</h1>
+    </div>
+    <div>
+      <table id="leaderboard">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>PR Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range .AuthorData }}
+            <tr>
+              <td><img src="{{ .AvatarURL }}"></td>
+              <td>{{ .Author }}</td>
+              <td>{{ .PrCount }}</td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+    <div class="aligner">
+      <h4>Updated {{ .UpdatedTime }}</h4>
+    </div>
+  </body>
+</html>
