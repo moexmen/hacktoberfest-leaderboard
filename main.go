@@ -33,6 +33,7 @@ type LeaderboardData struct {
 
 type avatarResult struct {
 	AvatarURL string `json:"avatar_url"`
+	Name      string `json:"name"`
 }
 
 type prCountResult struct {
@@ -57,7 +58,8 @@ func getAuthorData() []AuthorData {
 	authorData := make([]AuthorData, len(authors))
 	fmt.Printf("Authors: %v\n", authors)
 	for i, author := range authors {
-		currentAuthor := AuthorData{Author: author, PrCount: getPrCount(author), AvatarURL: getAvatar(author)}
+		avatarData := getAvatar(author)
+		currentAuthor := AuthorData{Author: avatarData.Name, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
 		authorData[i] = currentAuthor
 		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
@@ -65,7 +67,7 @@ func getAuthorData() []AuthorData {
 	return authorData
 }
 
-func getAvatar(author string) string {
+func getAvatar(author string) avatarResult {
 	url := fmt.Sprintf("https://api.github.com/users/%s", author)
 	response, err := http.Get(url)
 	if response != nil {
@@ -73,12 +75,12 @@ func getAvatar(author string) string {
 	}
 	if err != nil {
 		fmt.Println("Failed to fetch avatar. %s\n", err)
-		return ""
+		return avatarResult{}
 	} else {
 		ghData, _ := ioutil.ReadAll(response.Body)
 		result := avatarResult{}
 		json.Unmarshal([]byte(ghData), &result)
-		return result.AvatarURL
+		return result
 	}
 }
 
