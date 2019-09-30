@@ -16,12 +16,14 @@ type config struct {
 	GithubToken     string `env:"GHTOKEN"`
 	Authors         string `env:"AUTHORS"`
 	RefreshInterval int    `env:"REFRESH_INTERVAL" envDefault:"1800"`
+	Bozz            string `env:"BOZZ"`
 }
 
 type AuthorData struct {
-	Author    string
-	PrCount   int
-	AvatarURL string
+	AuthorClass string
+	Author      string
+	PrCount     int
+	AvatarURL   string
 }
 
 type LeaderboardData struct {
@@ -59,7 +61,12 @@ func getAuthorData() []AuthorData {
 	fmt.Printf("Authors: %v\n", authors)
 	for i, author := range authors {
 		avatarData := getAvatar(author)
-		currentAuthor := AuthorData{Author: avatarData.Name, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
+
+		var cssClass string
+		if avatarData.Name == cfg.Bozz {
+			cssClass = "bozz"
+		}
+		currentAuthor := AuthorData{AuthorClass: cssClass, Author: avatarData.Name, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
 		authorData[i] = currentAuthor
 		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
