@@ -68,8 +68,7 @@ func getAuthorData() []AuthorData {
 }
 
 func getAvatar(author string) avatarResult {
-	url := fmt.Sprintf("https://api.github.com/users/%s", author)
-	response, err := http.Get(url)
+	response, err := makeAuthorizedRequest("https://api.github.com/users/%s", author)
 	if response != nil {
 		defer response.Body.Close()
 	}
@@ -86,13 +85,7 @@ func getAvatar(author string) avatarResult {
 
 func getPrCount(author string) (prCount int) {
 	year := calcYear()
-	url := fmt.Sprintf("https://api.github.com/search/issues?q=created:%d-09-30T00:00:00-12:00..%d-10-31T23:59:59-12:00+type:pr+is:public+author:%s", year, year, author)
-	client := &http.Client{}
-	request, _ := http.NewRequest("GET", url, nil)
-	if cfg.GithubToken != "" {
-		request.Header.Set("Authorization", "token "+cfg.GithubToken)
-	}
-	response, err := client.Do(request)
+	response, err := makeAuthorizedRequest("https://api.github.com/search/issues?q=created:%d-09-30T00:00:00-12:00..%d-10-31T23:59:59-12:00+type:pr+is:public+author:%s", year, year, author)
 	if response != nil {
 		defer response.Body.Close()
 	}
@@ -105,6 +98,16 @@ func getPrCount(author string) (prCount int) {
 		json.Unmarshal([]byte(ghData), &result)
 		return result.PrCount
 	}
+}
+
+func makeAuthorizedRequest(urlFormat string, arguments ...interface{}) (*http.Response, error) {
+	url := fmt.Sprintf(urlFormat, arguments...)
+	client := &http.Client{}
+	request, _ := http.NewRequest("GET", url, nil)
+	if cfg.GithubToken != "" {
+		request.Header.Set("Authorization", "token "+cfg.GithubToken)
+	}
+	return client.Do(request)
 }
 
 func calcYear() int {
