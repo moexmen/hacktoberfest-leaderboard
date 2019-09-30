@@ -18,6 +18,8 @@ Without the token, only 10 authors can be added as the [search API's rate limit]
 Assign the personal access token to the `GHTOKEN` variable.
 Add the authors to be included on the leaderboard to the `AUTHORS` variable, separated by the colon character `:`.
 
+The `TIMEZONE` variable can be set to a location name from the [IANA Time Zone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
 ## Retrieving Data
 
 With the Docker container running, open a browser and go to [https://localhost:4000/leaderboard](https://localhost:4000/leaderboard).

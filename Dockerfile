@@ -5,6 +5,7 @@ WORKDIR /app
 RUN go build
 
 FROM alpine
+RUN apk add tzdata
 COPY --from=builder /app /app
 WORKDIR /app
 ENTRYPOINT ["/app/hacktoberfest-leaderboard"]
