@@ -7,5 +7,6 @@ services:
     environment:
       - GHTOKEN=${GHTOKEN}
       - AUTHORS=${AUTHORS}
-      - BOZZ=${BOZZ}
       - REFRESH_INTERVAL=${REFRESH_INTERVAL}
+      - BOZZ=${BOZZ}
+      - TIMEZONE=${TIMEZONE}

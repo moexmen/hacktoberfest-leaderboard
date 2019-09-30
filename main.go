@@ -17,6 +17,7 @@ type config struct {
 	Authors         string `env:"AUTHORS"`
 	RefreshInterval int    `env:"REFRESH_INTERVAL" envDefault:"1800"`
 	Bozz            string `env:"BOZZ"`
+	Timezone        string `env:"TIMEZONE" envDefault:"UTC"`
 }
 
 type AuthorData struct {
@@ -45,7 +46,16 @@ type prCountResult struct {
 func leaderboard(writer http.ResponseWriter, request *http.Request) {
 	t := template.Must(template.ParseFiles("leaderboard.html"))
 	authorData := getAuthorData()
-	leaderboardData := LeaderboardData{AuthorData: authorData, RefreshInterval: cfg.RefreshInterval, Year: calcYear(), UpdatedTime: time.Now().Format("2 Jan 2006 3:04 PM")}
+	location, err := time.LoadLocation(cfg.Timezone)
+	if err != nil {
+		location, _ = time.LoadLocation("UTC")
+	}
+	leaderboardData := LeaderboardData{
+		AuthorData:      authorData,
+		RefreshInterval: cfg.RefreshInterval,
+		Year:            calcYear(),
+		UpdatedTime:     time.Now().In(location).Format("2 Jan 2006 3:04 PM MST"),
+	}
 	t.Execute(writer, leaderboardData)
 }
 
