@@ -63,7 +63,7 @@ func getAuthorData() []AuthorData {
 		avatarData := getAvatar(author)
 
 		var cssClass string
-		if avatarData.Name == cfg.Bozz {
+		if author == cfg.Bozz {
 			cssClass = "bozz"
 		}
 		currentAuthor := AuthorData{AuthorClass: cssClass, Author: avatarData.Name, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
