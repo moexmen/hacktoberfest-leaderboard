@@ -76,7 +76,13 @@ func getAuthorData() []AuthorData {
 		if author == cfg.Bozz {
 			cssClass = "bozz"
 		}
-		currentAuthor := AuthorData{AuthorClass: cssClass, Author: avatarData.Name, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
+
+		// Use github login name if the `Name` field from the GitHub API is empty.
+		authorName := avatarData.Name
+		if len(authorName) == 0 {
+			authorName = author
+		}
+		currentAuthor := AuthorData{AuthorClass: cssClass, Author: authorName, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
 		authorData[i] = currentAuthor
 		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
