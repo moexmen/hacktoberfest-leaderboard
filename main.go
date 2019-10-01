@@ -86,7 +86,14 @@ func getAuthorData() []AuthorData {
 		authorData[i] = currentAuthor
 		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
-	sort.Slice(authorData, func(i, j int) bool { return authorData[i].PrCount > authorData[j].PrCount })
+	sort.Slice(authorData, func(i, j int) bool {
+		// If PR counts are tied, sort by name ascending
+		if authorData[i].PrCount == authorData[j].PrCount {
+			return authorData[i].Author < authorData[j].Author
+		}
+		// else sort by PR count descending
+		return authorData[i].PrCount > authorData[j].PrCount
+	})
 	return authorData
 }
 
