@@ -24,7 +24,7 @@
             <tr class="{{ .AuthorClass }}">
               <td><img src="{{ .AvatarURL }}"></td>
               <td>{{ .Author }}</td>
-              <td>{{ .PrCount }}</td>
+              <td class="{{ .PrCountClass }}">{{ .PrCount }}</td>
             </tr>
           {{ end }}
         </tbody>
