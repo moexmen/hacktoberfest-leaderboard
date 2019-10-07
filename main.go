@@ -3,28 +3,31 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/caarlos0/env"
 	"html/template"
 	"io/ioutil"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/caarlos0/env"
 )
 
 type config struct {
 	GithubToken     string `env:"GHTOKEN"`
 	Authors         string `env:"AUTHORS"`
+	RequiredPRCount int    `env:"REQUIRED_PR_COUNT"`
 	RefreshInterval int    `env:"REFRESH_INTERVAL" envDefault:"1800"`
 	Bozz            string `env:"BOZZ"`
 	Timezone        string `env:"TIMEZONE" envDefault:"UTC"`
 }
 
 type AuthorData struct {
-	AuthorClass string
-	Author      string
-	PrCount     int
-	AvatarURL   string
+	AuthorClass  string
+	Author       string
+	PrCount      int
+	PrCountClass string
+	AvatarURL    string
 }
 
 type LeaderboardData struct {
@@ -72,9 +75,9 @@ func getAuthorData() []AuthorData {
 	for i, author := range authors {
 		avatarData := getAvatar(author)
 
-		var cssClass string
+		var authorClass string
 		if author == cfg.Bozz {
-			cssClass = "bozz"
+			authorClass = "bozz"
 		}
 
 		// Use github login name if the `Name` field from the GitHub API is empty.
@@ -82,7 +85,14 @@ func getAuthorData() []AuthorData {
 		if len(authorName) == 0 {
 			authorName = author
 		}
-		currentAuthor := AuthorData{AuthorClass: cssClass, Author: authorName, PrCount: getPrCount(author), AvatarURL: avatarData.AvatarURL}
+
+		var prCountClass string
+		var prCount = getPrCount(author)
+		if prCount >= cfg.RequiredPRCount {
+			prCountClass = "met-pr-count"
+		}
+
+		currentAuthor := AuthorData{AuthorClass: authorClass, Author: authorName, PrCount: prCount, PrCountClass: prCountClass, AvatarURL: avatarData.AvatarURL}
 		authorData[i] = currentAuthor
 		fmt.Printf("Author: %s, PR count: %d\n", currentAuthor.Author, currentAuthor.PrCount)
 	}
