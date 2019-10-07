@@ -18,7 +18,7 @@ type config struct {
 	Authors         string `env:"AUTHORS"`
 	RequiredPRCount int    `env:"REQUIRED_PR_COUNT"`
 	RefreshInterval int    `env:"REFRESH_INTERVAL" envDefault:"1800"`
-	Bozz            string `env:"BOZZ"`
+	Bozzes          string `env:"BOZZES"`
 	Timezone        string `env:"TIMEZONE" envDefault:"UTC"`
 }
 
@@ -72,12 +72,16 @@ func getAuthorData() []AuthorData {
 	authors := strings.Split(cfg.Authors, ":")
 	authorData := make([]AuthorData, len(authors))
 	fmt.Printf("Authors: %v\n", authors)
+
+	bozzes := strings.Split(cfg.Bozzes, ":")
 	for i, author := range authors {
 		avatarData := getAvatar(author)
 
 		var authorClass string
-		if author == cfg.Bozz {
-			authorClass = "bozz"
+		for _, b := range bozzes {
+			if author == b {
+				authorClass = "bozz"
+			}
 		}
 
 		// Use github login name if the `Name` field from the GitHub API is empty.
