@@ -8,5 +8,5 @@ services:
       - GHTOKEN=${GHTOKEN}
       - AUTHORS=${AUTHORS}
       - REFRESH_INTERVAL=${REFRESH_INTERVAL:-1800}
-      - BOZZ=${BOZZ}
+      - BOZZES=${BOZZES}
       - TIMEZONE=${TIMEZONE}
